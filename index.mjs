@@ -51,6 +51,7 @@ function loadUserIds() {
     if (err) throw err;
     // ユーザーIDを配列に保存
     userIds = data.split('\n').filter(id => id);
+    console.log(userIds);
   });
 }
 
@@ -114,6 +115,9 @@ function loopRL() {
     const [command, ...args] = input.split(" ");
     switch (command) {
       case "push":
+        await lineApi.pushMessage(args[0], args[1]);
+        break;
+      case "pushall":
         for (let userID of userIds) {
           await lineApi.pushMessage(userID, args.join(" "));
         }
