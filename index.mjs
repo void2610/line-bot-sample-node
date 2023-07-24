@@ -3,6 +3,7 @@ import express from "express";
 import crypto from "crypto";
 
 import readline from "readline";
+import fs from "fs";
 
 // 環境変数の定義を.envファイルから読み込む（開発用途用）
 import dotenv from "dotenv";
@@ -31,6 +32,27 @@ const lineApi = new LineApi(CHANNEL_ACCESS_TOKEN);
 
 //ユーザーIDを格納する配列
 let userIds = [];
+
+//fsでtxtファイルにユーザーIDを保存する関数
+function saveUserIds() {
+  fs.readFile('userIds.txt', 'utf8', (err, data) => {
+    for (let userId of userIds) {
+      if (data.includes(userId)) continue;
+      fs.appendFile("userIds.txt", userId + "\n", (err) => {
+        if (err) throw err;
+      });
+    }
+  });
+}
+
+//fsでtxtファイルからユーザーIDを読み込む関数
+function loadUserIds() {
+  fs.readFile('userIds.txt', 'utf8', (err, data) => {
+    if (err) throw err;
+    // ユーザーIDを配列に保存
+    userIds = data.split('\n').filter(id => id);
+  });
+}
 
 // ルートのエンドポイント定義
 // レスポンスがきちんと返せているかの確認用
@@ -65,6 +87,7 @@ app.post("/webhook", (request, response, buf) => {
         if (!userIds.includes(event.source.userId)) {
           userIds.push(event.source.userId);
           console.log(userIds);
+          saveUserIds();
         }
         break;
     }
@@ -95,6 +118,10 @@ function loopRL() {
           await lineApi.pushMessage(userID, args.join(" "));
         }
         break;
+      case "friend":
+        for (let userID of userIds) {
+          console.log(userID);
+        }
       default:
         break;
     }
@@ -102,4 +129,5 @@ function loopRL() {
   });
 }
 
+loadUserIds();
 loopRL();
