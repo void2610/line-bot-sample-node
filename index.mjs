@@ -51,6 +51,7 @@ function loadUserIds() {
     if (err) throw err;
     // ユーザーIDを配列に保存
     userIds = data.split('\n').filter(id => id);
+    console.log("loaded userIds:");
     console.log(userIds);
   });
 }
