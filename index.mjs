@@ -85,7 +85,6 @@ app.post("/webhook", (request, response, buf) => {
         // ユーザーIDが配列になかったら格納
         if (!userIds.includes(event.source.userId)) {
           userIds.push(event.source.userId);
-          console.log(userIds);
           saveUserIds();
         }
 
@@ -141,6 +140,14 @@ app.post("/webhook", (request, response, buf) => {
           default:
             break;
         }
+        break;
+      case "follow": // event.typeがfollowのとき応答
+        // ユーザーIDが配列になかったら格納
+        if (!userIds.includes(event.source.userId)) {
+          userIds.push(event.source.userId);
+          saveUserIds();
+        }
+        await lineApi.replyMessage(event.replyToken, "友達追加ありがとう!あなたのユーザーIDは" + event.source.userId + "です");
     }
   });
 
