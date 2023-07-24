@@ -87,11 +87,11 @@ const rl = readline.createInterface({
 
 function loopRL() {
  rl.question("input function name: ", async (input) => {
-  switch (input) {
+  const [command, ...args] = input.split(" ");
+  switch (command) {
    case "push":
-    await lineApi.pushMessage(userIds[0], "push test");
+    await lineApi.pushMessage(userIds[0], args.join(" "));
     break;
-
    default:
     break;
   }
