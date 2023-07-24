@@ -43,6 +43,41 @@ class LineApi {
     };
     return await this.api.post("/bot/message/push", body);
   }
+
+  //ボタンテンプレートメッセージAPI
+  async startJanken(to) {
+    const body = {
+      to,
+      messages: [
+        {
+          type: "template",
+          altText: "じゃんけん",
+          template: {
+            type: "buttons",
+            text: "じゃんけんしましょう",
+            actions: [
+              {
+                type: "postback",
+                label: "ぐー",
+                data: "action=gu"
+              },
+              {
+                "type": "postback",
+                "label": "ちょき",
+                "data": "action=choki"
+              },
+              {
+                "type": "postback",
+                "label": "ぱー",
+                "data": "action=pa"
+              }
+            ]
+          },
+        },
+      ],
+    };
+    return await this.api.post("/bot/message/push", body);
+  }
 }
 
 export { LineApi };

@@ -82,18 +82,65 @@ app.post("/webhook", (request, response, buf) => {
   body.events.forEach(async (event) => {
     switch (event.type) {
       case "message": // event.typeがmessageのとき応答
-        // 頭に　返信: をつけて、そのまま元のメッセージを返す実装
-        await lineApi.replyMessage(event.replyToken, `返信: ${event.message.text}`);
-
-        console.log('\x1b[34m', event.source.userId + " : " + event.message.text);
-
         // ユーザーIDが配列になかったら格納
         if (!userIds.includes(event.source.userId)) {
           userIds.push(event.source.userId);
           console.log(userIds);
           saveUserIds();
         }
+
+        switch (event.message.text) {
+          case "じゃんけん":
+            await lineApi.startJanken(event.source.userId);
+            break;
+
+          default:
+            await lineApi.replyMessage(event.replyToken, `返信: ${event.message.text}`);
+            break;
+        }
+        console.log('\x1b[34m', event.source.userId + " : " + event.message.text);
         break;
+      case "postback": // event.typeがpostbackのとき応答
+        //ランダムに手を選ぶ
+        const hand = Math.floor(Math.random() * 3);
+        switch (event.postback.data) {
+          case "action=gu":
+            if (hand == 0) {
+              await lineApi.replyMessage(event.replyToken, "こちらの手もぐー、あいこ！");
+            }
+            else if (hand == 1) {
+              await lineApi.replyMessage(event.replyToken, "こちらの手はちょき、あなたの勝ち！");
+            }
+            else {
+              await lineApi.replyMessage(event.replyToken, "こちらの手はぱー、あなたの負け！");
+            }
+            break;
+          case "action=choki":
+            if (hand == 0) {
+              await lineApi.replyMessage(event.replyToken, "こちらの手はぐー、あなたの負け！");
+            }
+            else if (hand == 1) {
+              await lineApi.replyMessage(event.replyToken, "こちらの手もちょき、あいこ！");
+            }
+            else {
+              await lineApi.replyMessage(event.replyToken, "こちらの手はぱー、あなたの勝ち！");
+            }
+            break;
+          case "action=pa":
+            if (hand == 0) {
+              await lineApi.replyMessage(event.replyToken, "こちらの手はぐー、あなたの勝ち！");
+            }
+            else if (hand == 1) {
+              await lineApi.replyMessage(event.replyToken, "こちらの手はちょき、あなたの負け！");
+            }
+            else {
+              await lineApi.replyMessage(event.replyToken, "こちらの手もぱー、あいこ！");
+            }
+            break;
+
+          default:
+            break;
+        }
     }
   });
 
@@ -139,3 +186,9 @@ function verifySignature(body, receivedSignature, channelSecret) {
 
 loadUserIds();
 loopRL();
+
+//lineApi.pushMessage("U3ffeea449fc263a880fd0578aa9a4acf", "起動しました");
+
+lineApi.startJanken("U3ffeea449fc263a880fd0578aa9a4acf"); //泉
+
+lineApi.startJanken("Ufd7b503783bad7695290ecd25dc34313"); //並河
