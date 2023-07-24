@@ -85,6 +85,8 @@ app.post("/webhook", (request, response, buf) => {
         // 頭に　返信: をつけて、そのまま元のメッセージを返す実装
         await lineApi.replyMessage(event.replyToken, `返信: ${event.message.text}`);
 
+        console.log('\x1b[34m', event.source.userId + " : " + event.message.text);
+
         // ユーザーIDが配列になかったら格納
         if (!userIds.includes(event.source.userId)) {
           userIds.push(event.source.userId);
@@ -97,13 +99,6 @@ app.post("/webhook", (request, response, buf) => {
 
   response.status(200).send({});
 });
-
-// webhookの署名検証
-// https://developers.line.biz/ja/reference/messaging-api/#signature-validation
-function verifySignature(body, receivedSignature, channelSecret) {
-  const signature = crypto.createHmac("SHA256", channelSecret).update(body).digest("base64");
-  return signature === receivedSignature;
-}
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -133,6 +128,14 @@ function loopRL() {
     loopRL();
   });
 }
+
+// webhookの署名検証
+// https://developers.line.biz/ja/reference/messaging-api/#signature-validation
+function verifySignature(body, receivedSignature, channelSecret) {
+  const signature = crypto.createHmac("SHA256", channelSecret).update(body).digest("base64");
+  return signature === receivedSignature;
+}
+
 
 loadUserIds();
 loopRL();
